@@ -81,8 +81,8 @@ class Filter extends Component {
     return (
       <div style={defaultStyle}>
         <img/>
-        <input type="text"/>
-        Filter
+        <input type="text" onKeyUp={event =>
+            this.props.onTextChange(event.target.value)}/>
       </div>
     );
   }
@@ -110,28 +110,41 @@ class Playlist extends Component {
 class App extends Component {
   constructor() {
     super();
-    this.state = {serverData: {}};
+    this.state = {
+      serverData: {},
+      filterString: ''
+    };
   }
   componentDidMount() {
     setTimeout(() => {
       this.setState({serverData: fakeServerData});
-    }, 1000
-    );
+    }, 1000);
   }
   render() {
+    let serverData = this.state.serverData
     return (
       <div className="App">
-        {this.state.serverData.user ?
+        {serverData.user ?
           <div>
-            <h1 style={{...defaultStyle, 'font-size': '54px'}}>
-              {this.state.serverData.user.name}'s Playlist
+
+            <h1 style={{...defaultStyle, fontSize: '54px'}}>
+              {serverData.user.name}'s Playlist
             </h1>
-            <PlaylistCounter playlists={this.state.serverData.user.playlists}/>
-            <HoursCounter playlists={this.state.serverData.user.playlists}/>
-            <Filter/>
-            {this.state.serverData.user.playlists.map(playlist =>
-              <Playlist playlist={playlist}/>
-            )}
+
+            <PlaylistCounter playlists={serverData.user.playlists}/>
+
+            <HoursCounter playlists={serverData.user.playlists}/>
+
+            <Filter onTextChange={ text => {
+              this.setState({filterString: text});
+            }} />
+
+            {serverData.user.playlists
+                .filter(playlist => playlist.name.toLowerCase().includes(
+                                      this.state.filterString.toLowerCase()))
+                .map(playlist => <Playlist playlist={playlist}/>)
+            }
+
           </div> : <h1 style={defaultStyle}>'Loading...'</h1>}
       </div>
     );

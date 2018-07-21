@@ -151,7 +151,7 @@ class App extends Component {
               window.location = 
               window.location.href.includes('localhost')
               ? 'http://localhost:8080/login'
-              : 'https://better-playlist-jaehun-backend.herokuapp.com/'}
+              : 'https://better-playlist-jaehun-backend.herokuapp.com/login'}
             }
             style={{padding: '20px', fontSize: '50px', marginTop: '20px'}}>
             Sign in with Spotify

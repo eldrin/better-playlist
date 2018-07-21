@@ -149,7 +149,7 @@ class App extends Component {
           </div> :
           <button onClick={() => {
               window.location = 
-              window.location.includes('localhost')
+              window.location.href.includes('localhost')
               ? 'http://localhost:8080/login'
               : 'https://http://better-playlists-jaehun.herokuapp.com/'}
             }

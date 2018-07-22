@@ -3,7 +3,6 @@ import 'reset-css/reset.css';
 import './App.css';
 import queryString from 'query-string';
 
-
 let defaultStyle = {
   color: '#fff',
   fontFamily: 'Laksaman'

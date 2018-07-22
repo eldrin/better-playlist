@@ -1,41 +1,38 @@
 import React, { Component } from 'react';
+import 'reset-css/reset.css';
 import './App.css';
 import queryString from 'query-string';
 
 
 let defaultStyle = {
-  color: '#fff'
+  color: '#fff',
+  fontFamily: 'Laksaman'
 };
-// let fakeServerData = {
-//   user: {
-//     name: 'Jaehun',
-//     playlists: [
-//       {
-//         name: 'My favorites',
-//         songs: [
-//           {name: 'Beat It', duration: 1234},
-//           {name: 'Chanelloni Makaroni', duration: 472},
-//           {name: 'Rosa helikopter', duration: 267}
-//         ]
-//       }
-//     ]
-//   }
-// };
+let counterStyle = {...defaultStyle,
+  width: "40%", 
+  display: 'inline-block',
+  marginBottom: '20px',
+  fontSize: '20px',
+  lineHeight: '30px'
+}
+
+function isEven(n) {
+  return n % 2
+}
 
 
 class PlaylistCounter extends Component {
   render() {
     return (
-      <div style={{...defaultStyle, width: "40%", display: 'inline-block'}}>
-        <h2>
-          {this.props.playlists.length} Playlists</h2>
+      <div style={counterStyle}>
+        <h2>{this.props.playlists.length} Playlists</h2>
       </div>
     );
   }
 }
 
 
-class HoursCounter extends Component {
+class MinutesCounter extends Component {
   render() {
     let allSongs = this.props.playlists.reduce((songs, eachPlaylist) => {
       return songs.concat(eachPlaylist.songs);
@@ -43,11 +40,16 @@ class HoursCounter extends Component {
     let totalDuration = allSongs.reduce((sum, eachSong) => {
       return sum + eachSong.duration
     }, 0)
-    totalDuration = Math.floor(totalDuration / 60)
+    let totalDurationMinutes = Math.round(totalDuration / 60)
+    let isTooLow = totalDurationMinutes < 10;
+    let minutesCounterStyle = {...counterStyle, 
+      color: isTooLow ? 'red' : 'white',
+      fontWeight: isTooLow ? 'bold' : 'normal',
+    };
     return (
-      <div style={{...defaultStyle, width: "40%", display: 'inline-block'}}>
+      <div style={minutesCounterStyle}>
         <h2>
-          {totalDuration} Hours</h2>
+          {totalDurationMinutes} Min</h2>
       </div>
     );
   }
@@ -60,7 +62,9 @@ class Filter extends Component {
       <div style={defaultStyle}>
         <img/>
         <input type="text" onKeyUp={event =>
-            this.props.onTextChange(event.target.value)}/>
+            this.props.onTextChange(event.target.value)}
+            style={{...defaultStyle, color: 'black', fontSize: '20px', padding: '10px'}}
+            />
       </div>
     );
   }
@@ -71,12 +75,19 @@ class Playlist extends Component {
   render() {
     let playlist = this.props.playlist;
     return (
-      <div style={{...defaultStyle, display: 'inline-block', width: "25%"}}>
+      <div style={{...defaultStyle, 
+        display: 'inline-block', 
+        width: "25%",
+        padding: '10px',
+        'background-color': isEven(this.props.index)
+          ? '#C0C0C0' 
+          : '#808080'
+        }}>
+        <h3 style={{marginBottom: '10px', fontWeight: 'bold'}}>{playlist.name}</h3>
         <img src={playlist.image} style={{width: '60px'}}/>
-        <h3>{playlist.name}</h3>
-        <ul>
-          {playlist.songs.map(song =>
-            <li>{song.name}</li>
+        <ul style={{marginTop: '10px'}}>
+          {playlist.songsToDisplay.map(song =>
+            <li style={{paddingTop: '2px'}}>{song.name}</li>
           )}
         </ul>
       </div>
@@ -137,7 +148,9 @@ class App extends Component {
         return {
           name: item.name,
           image: item.images[0].url,
-          songs: item.trackDatas.splice(0,3)        }
+          songsToDisplay: item.trackDatas.slice(0, 3),
+          songs: item.trackDatas
+        }
       })
     }))
   }
@@ -148,7 +161,7 @@ class App extends Component {
         ? this.state.playlists.filter(playlist => {
           let matchesPlaylist = playlist.name.toLowerCase().includes(
             this.state.filterString.toLowerCase())
-          let matchesSong = playlist.songs.find(song => song.name.toLowerCase()
+          let matchesSong = playlist.songsToDisplay.find(song => song.name.toLowerCase()
           .includes(this.state.filterString.toLowerCase()))
           return matchesPlaylist || matchesSong
         })
@@ -158,19 +171,23 @@ class App extends Component {
         {this.state.user ?
           <div>
 
-            <h1 style={{...defaultStyle, fontSize: '54px'}}>
+            <h1 style={{
+              ...defaultStyle,
+              fontSize: '54px',
+              marginTop: '5px'}}>
               {this.state.user.name}'s Playlist
             </h1>
 
             <PlaylistCounter playlists={playlistToRender}/>
 
-            <HoursCounter playlists={playlistToRender}/>
+            <MinutesCounter playlists={playlistToRender}/>
 
             <Filter onTextChange={ text => {
               this.setState({filterString: text});
             }} />
 
-            {playlistToRender.map(playlist => <Playlist playlist={playlist}/>)}
+            {playlistToRender.map((playlist, i) => 
+              <Playlist playlist={playlist} index={i}/>)}
 
           </div> :
           <button onClick={() => {
